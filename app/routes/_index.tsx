@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { motion } from 'framer-motion';
+import { SelectSeparator } from '~/components/ui/select';
 
 export const meta: MetaFunction = () => {
   return [
