@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData, useParams, Form } from '@remix-run/react';
 import { json, LoaderFunction, ActionFunction } from '@remix-run/node';
-import { PrismaClient, User, Message } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { getToken, getUserIdFromToken } from '~/utils/auth';
 
 const prisma = new PrismaClient();
+
+type Message = {
+  id: string;
+  content: string;
+  createdAt: Date;
+  senderId: string;
+  recipientId: string;
+};
 
 type LoaderData = {
   currentUser: User;

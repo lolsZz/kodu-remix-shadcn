@@ -6,14 +6,20 @@ import { getToken, getUserIdFromToken } from '~/utils/auth';
 
 const prisma = new PrismaClient();
 
+type Conversation = {
+  user: {
+    id: string;
+    name: string | null;
+    profileImage: string | null;
+  };
+  lastMessage: {
+    content: string;
+    createdAt: Date;
+  };
+};
+
 type LoaderData = {
-  conversations: {
-    user: User;
-    lastMessage: {
-      content: string;
-      createdAt: Date;
-    };
-  }[];
+  conversations: Conversation[];
 };
 
 export const loader: LoaderFunction = async ({ request }): Promise<Response> => {
@@ -57,7 +63,7 @@ export const loader: LoaderFunction = async ({ request }): Promise<Response> => 
       },
     });
 
-    const formattedConversations = conversations.map((conversation) => {
+    const formattedConversations: Conversation[] = conversations.map((conversation) => {
       const otherUser = conversation.senderId === userId ? conversation.recipient : conversation.sender;
       return {
         user: otherUser,
