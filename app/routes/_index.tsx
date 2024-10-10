@@ -21,7 +21,7 @@ export default function Index() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-semibold mb-4">{t('forCreators')}</h2>
             <p className="mb-4">{t('creatorsDescription')}</p>
-            <Button asChild>
+            <Button asChild variant="primary">
               <Link to="/auth/signup">{t('becomeCreator')}</Link>
             </Button>
           </div>

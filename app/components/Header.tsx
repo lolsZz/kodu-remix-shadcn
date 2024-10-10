@@ -35,7 +35,7 @@ export function Header() {
           <Button variant="secondary" asChild>
             <Link to="/auth/login">{t('login')}</Link>
           </Button>
-          <Button variant="default" asChild>
+          <Button variant="primary" asChild>
             <Link to="/auth/signup">{t('signup')}</Link>
           </Button>
         </div>
