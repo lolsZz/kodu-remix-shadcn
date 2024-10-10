@@ -11,14 +11,14 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { motion } from 'framer-motion';
-import { SelectSeparator } from '~/components/ui/select';
+import { useTranslation } from 'react-i18next';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Kodu.ai Template' },
+    { title: 'Japanese OnlyFans Clone' },
     {
       name: 'description',
-      content: 'A template by Kodu.ai using Remix, Shadcn UI, and Tailwind CSS',
+      content: 'A Japanese OnlyFans clone for content creators and subscribers',
     },
   ];
 };
@@ -43,9 +43,11 @@ const itemVariants = {
 };
 
 export default function Index() {
+  const { t } = useTranslation();
+
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-b from-blue-100 to-white dark:from-gray-900 dark:to-gray-800"
+      className="min-h-screen bg-gradient-to-b from-pink-100 to-white dark:from-gray-900 dark:to-gray-800"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -58,7 +60,7 @@ export default function Index() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            Welcome to Kodu.ai Template
+            {t('welcome')}
           </motion.h1>
           <motion.p
             className="text-xl text-gray-600 dark:text-gray-300"
@@ -66,15 +68,15 @@ export default function Index() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            A powerful starter template for your next project
+            日本の クリエイターと購読者のためのプラットフォーム
           </motion.p>
         </motion.header>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8"
           variants={containerVariants}
         >
-          {['Remix', 'Shadcn UI', 'Tailwind CSS'].map((title, index) => (
+          {[t('creators'), t('subscribers')].map((title, index) => (
             <motion.div key={title} variants={itemVariants}>
               <Card>
                 <CardHeader>
@@ -82,12 +84,9 @@ export default function Index() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    {index === 0 &&
-                      'Build better websites with Remix, the full stack web framework.'}
-                    {index === 1 &&
-                      'Beautifully designed components built with Radix UI and Tailwind CSS.'}
-                    {index === 2 &&
-                      'A utility-first CSS framework for rapid UI development.'}
+                    {index === 0
+                      ? 'コンテンツを共有し、ファンと繋がりましょう'
+                      : '好きなクリエイターをサポートし、独占コンテンツを楽しみましょう'}
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -102,10 +101,11 @@ export default function Index() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.5 }}
           >
-            Ready to get started?
+            今すぐ始めましょう！
           </motion.h2>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button size="lg">Get Started</Button>
+          <motion.div className="space-x-4" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button size="lg">{t('login')}</Button>
+            <Button size="lg" variant="outline">{t('signup')}</Button>
           </motion.div>
         </motion.div>
 
@@ -116,8 +116,7 @@ export default function Index() {
           transition={{ delay: 1.5, duration: 0.5 }}
         >
           <p>
-            This template uses Remix, Shadcn UI, Tailwind CSS, and SQLite
-            database. Created with ❤️ by Kodu.ai
+            安全で楽しいプラットフォームを目指しています。ご利用は18歳以上に限ります。
           </p>
         </motion.footer>
       </div>
