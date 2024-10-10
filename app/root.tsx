@@ -1,7 +1,3 @@
-/**
- * This is a remix project using shadcn and tailwindcss, framer motion, it's currently got everything configured and ready to go.
- * you should use shadcn ui components to build your app use clean design and animations.
- */
 import {
   Links,
   Meta,
@@ -12,8 +8,10 @@ import {
 import type { LinksFunction } from '@remix-run/node';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 
-import './tailwind.css';
+import './styles/tailwind.css';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -24,7 +22,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap',
   },
 ];
 
@@ -39,7 +37,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <I18nextProvider i18n={i18n}>
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </I18nextProvider>
         <ScrollRestoration />
         <Scripts />

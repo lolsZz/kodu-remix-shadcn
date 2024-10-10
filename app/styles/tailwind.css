@@ -1,0 +1,43 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --color-primary: #FF4B90;
+  --color-secondary: #FFB6C1;
+  --color-background: #FFF0F5;
+  --color-text: #333333;
+  --color-accent: #FF69B4;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.btn-primary {
+  @apply bg-pink-500 text-white font-bold py-2 px-4 rounded-full hover:bg-pink-600 transition duration-300;
+}
+
+.btn-secondary {
+  @apply bg-pink-200 text-pink-800 font-bold py-2 px-4 rounded-full hover:bg-pink-300 transition duration-300;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md overflow-hidden;
+}
+
+.input-field {
+  @apply border-2 border-pink-300 rounded-md px-3 py-2 focus:outline-none focus:border-pink-500;
+}
+
+.header {
+  @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white;
+}
+
+.footer {
+  @apply bg-gray-800 text-white;
+}
+
+/* Add more custom styles as needed */
