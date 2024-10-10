@@ -26,6 +26,7 @@ model User {
   createdContent Content[]
   subscriptions  Subscription[] @relation("Subscriber")
   subscribers    Subscription[] @relation("Creator")
+  payments       Payment[]
 }
 
 model Content {
@@ -45,6 +46,8 @@ model Subscription {
   id         String   @id @default(uuid())
   startDate  DateTime @default(now())
   endDate    DateTime?
+  status     String   @default("ACTIVE") // ACTIVE, CANCELLED, EXPIRED
+  price      Float
   
   // Relations
   subscriber User     @relation("Subscriber", fields: [subscriberId], references: [id])
@@ -52,5 +55,27 @@ model Subscription {
   creator    User     @relation("Creator", fields: [creatorId], references: [id])
   creatorId  String
 
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  payments   Payment[]
+
   @@unique([subscriberId, creatorId])
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  amount         Float
+  currency       String   @default("JPY")
+  status         String   // PENDING, COMPLETED, FAILED
+  paymentMethod  String   // CREDIT_CARD, BANK_TRANSFER, etc.
+  transactionId  String?  // ID from payment gateway
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
 }
