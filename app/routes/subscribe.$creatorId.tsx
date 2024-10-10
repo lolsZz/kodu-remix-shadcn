@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLoaderData, Form, useActionData, useNavigation } from '@remix-run/react';
 import { json, LoaderFunction, ActionFunction, redirect } from '@remix-run/node';
 import { PrismaClient, User } from '@prisma/client';
@@ -7,8 +7,13 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { getToken, getUserIdFromToken } from '~/utils/auth';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const prisma = new PrismaClient();
+
+// Make sure to set this in your environment variables
+const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY);
 
 type LoaderData = {
   creator: User;
@@ -45,12 +50,25 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData();
   const price = parseFloat(formData.get('price') as string);
+  const paymentIntentId = formData.get('paymentIntentId') as string;
 
   if (isNaN(price) || price <= 0) {
     return json({ error: '有効な価格を入力してください。' }, { status: 400 });
   }
 
+  if (!paymentIntentId) {
+    return json({ error: '決済情報が見つかりません。' }, { status: 400 });
+  }
+
   try {
+    // Verify the payment was successful with Stripe
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== 'succeeded') {
+      return json({ error: '決済が完了していません。' }, { status: 400 });
+    }
+
     const subscription = await prisma.subscription.create({
       data: {
         subscriber: { connect: { id: userId } },
@@ -60,13 +78,12 @@ export const action: ActionFunction = async ({ request, params }) => {
       },
     });
 
-    // Here you would typically integrate with a payment gateway
-    // For now, we'll create a dummy payment record
     await prisma.payment.create({
       data: {
         amount: price,
         status: 'COMPLETED',
         paymentMethod: 'CREDIT_CARD',
+        transactionId: paymentIntentId,
         user: { connect: { id: userId } },
         subscription: { connect: { id: subscription.id } },
       },
@@ -79,17 +96,77 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
+function CheckoutForm({ price }: { price: number }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState(null);
+  const [clientSecret, setClientSecret] = useState('');
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // Create PaymentIntent as soon as the page loads
+    fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price }),
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret));
+  }, [price]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!stripe || !elements) {
+      // Stripe.js has not loaded yet. Make sure to disable
+      // form submission until Stripe.js has loaded.
+      return;
+    }
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+      },
+    });
+
+    if (result.error) {
+      setError(result.error.message);
+    } else {
+      // The payment has been processed!
+      if (result.paymentIntent.status === 'succeeded') {
+        // Pass the payment intent ID to the server
+        const form = event.target;
+        const formData = new FormData(form);
+        formData.append('paymentIntentId', result.paymentIntent.id);
+        
+        // Submit the form with the payment intent ID
+        form.submit();
+      }
+    }
+  };
+
+  return (
+    <Form onSubmit={handleSubmit} method="post">
+      <CardElement />
+      <input type="hidden" name="price" value={price} />
+      {error && <div>{error}</div>}
+      <Button type="submit" disabled={!stripe || navigation.state === 'submitting'}>
+        支払う
+      </Button>
+    </Form>
+  );
+}
+
 export default function Subscribe() {
   const { creator } = useLoaderData<LoaderData>();
   const actionData = useActionData<{ error?: string }>();
-  const navigation = useNavigation();
   const { t } = useTranslation();
   const [price, setPrice] = useState('');
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">{t('subscribeToCreator', { name: creator.name })}</h1>
-      <Form method="post" className="space-y-4">
+      <div className="space-y-4">
         <div>
           <Label htmlFor="price">{t('subscriptionPrice')}</Label>
           <Input 
@@ -104,10 +181,12 @@ export default function Subscribe() {
           />
         </div>
         {actionData?.error && <p className="text-red-500">{actionData.error}</p>}
-        <Button type="submit" disabled={navigation.state === 'submitting'}>
-          {navigation.state === 'submitting' ? t('processing') : t('subscribe')}
-        </Button>
-      </Form>
+        {price && (
+          <Elements stripe={stripePromise}>
+            <CheckoutForm price={parseFloat(price)} />
+          </Elements>
+        )}
+      </div>
     </div>
   );
 }
