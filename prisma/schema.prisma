@@ -16,6 +16,41 @@ model User {
   hashedPassword String
   name           String?
   role           String   @default("SUBSCRIBER")
+  bio            String?
+  profileImage   String?
+  coverImage     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
+  // Relations
+  createdContent Content[]
+  subscriptions  Subscription[] @relation("Subscriber")
+  subscribers    Subscription[] @relation("Creator")
+}
+
+model Content {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  fileUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  creator     User     @relation(fields: [creatorId], references: [id])
+  creatorId   String
+}
+
+model Subscription {
+  id         String   @id @default(uuid())
+  startDate  DateTime @default(now())
+  endDate    DateTime?
+  
+  // Relations
+  subscriber User     @relation("Subscriber", fields: [subscriberId], references: [id])
+  subscriberId String
+  creator    User     @relation("Creator", fields: [creatorId], references: [id])
+  creatorId  String
+
+  @@unique([subscriberId, creatorId])
 }
