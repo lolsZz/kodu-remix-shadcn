@@ -1,3 +1,7 @@
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
 export const getToken = () => {
   return localStorage.getItem('token');
 };
@@ -28,5 +32,15 @@ export const logout = async () => {
     window.location.href = '/';
   } else {
     console.error('Logout failed');
+  }
+};
+
+export const getUserIdFromToken = (token: string): string | null => {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    return decoded.userId;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
   }
 };
