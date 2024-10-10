@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useLoaderData, Form, useActionData, useNavigation } from '@remix-run/react';
-import { json, LoaderFunction, ActionFunction, redirect } from '@remix-run/node';
+import {
+  useLoaderData,
+  Form,
+  useActionData,
+  useNavigation,
+} from '@remix-run/react';
+import {
+  json,
+  LoaderFunction,
+  ActionFunction,
+  redirect,
+} from '@remix-run/node';
 import { PrismaClient, User } from '@prisma/client';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
@@ -8,20 +18,28 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { getToken, getUserIdFromToken } from '~/utils/auth';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
 
 const prisma = new PrismaClient();
 
 // Make sure to set this in your environment variables
-const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY!);
 
 type LoaderData = {
   creator: User;
 };
 
-export const loader: LoaderFunction = async ({ params, request }): Promise<Response> => {
+export const loader: LoaderFunction = async ({
+  params,
+  request,
+}): Promise<Response> => {
   const { creatorId } = params;
-  if (!creatorId) throw new Error("Creator ID is required");
+  if (!creatorId) throw new Error('Creator ID is required');
 
   const creator = await prisma.user.findUnique({
     where: { id: creatorId },
@@ -46,7 +64,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   const { creatorId } = params;
-  if (!creatorId) throw new Error("Creator ID is required");
+  if (!creatorId) throw new Error('Creator ID is required');
 
   const formData = await request.formData();
   const price = parseFloat(formData.get('price') as string);
@@ -92,7 +110,10 @@ export const action: ActionFunction = async ({ request, params }) => {
     return redirect(`/profile/${creatorId}`);
   } catch (error) {
     console.error('Subscription creation error:', error);
-    return json({ error: '購読の作成中にエラーが発生しました。' }, { status: 500 });
+    return json(
+      { error: '購読の作成中にエラーが発生しました。' },
+      { status: 500 }
+    );
   }
 };
 
@@ -138,7 +159,7 @@ function CheckoutForm({ price }: { price: number }) {
         const form = event.target;
         const formData = new FormData(form);
         formData.append('paymentIntentId', result.paymentIntent.id);
-        
+
         // Submit the form with the payment intent ID
         form.submit();
       }
@@ -150,7 +171,10 @@ function CheckoutForm({ price }: { price: number }) {
       <CardElement />
       <input type="hidden" name="price" value={price} />
       {error && <div>{error}</div>}
-      <Button type="submit" disabled={!stripe || navigation.state === 'submitting'}>
+      <Button
+        type="submit"
+        disabled={!stripe || navigation.state === 'submitting'}
+      >
         支払う
       </Button>
     </Form>
@@ -165,22 +189,26 @@ export default function Subscribe() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">{t('subscribeToCreator', { name: creator.name })}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        {t('subscribeToCreator', { name: creator.name })}
+      </h1>
       <div className="space-y-4">
         <div>
           <Label htmlFor="price">{t('subscriptionPrice')}</Label>
-          <Input 
-            type="number" 
-            id="price" 
-            name="price" 
+          <Input
+            type="number"
+            id="price"
+            name="price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             min="0"
             step="0.01"
-            required 
+            required
           />
         </div>
-        {actionData?.error && <p className="text-red-500">{actionData.error}</p>}
+        {actionData?.error && (
+          <p className="text-red-500">{actionData.error}</p>
+        )}
         {price && (
           <Elements stripe={stripePromise}>
             <CheckoutForm price={parseFloat(price)} />

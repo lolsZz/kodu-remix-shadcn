@@ -27,6 +27,8 @@ model User {
   subscriptions  Subscription[] @relation("Subscriber")
   subscribers    Subscription[] @relation("Creator")
   payments       Payment[]
+  sentMessages     Message[]     @relation("Sender")
+  receivedMessages Message[]     @relation("Recipient")
 }
 
 model Content {
@@ -78,4 +80,19 @@ model Payment {
   userId         String
   subscription   Subscription @relation(fields: [subscriptionId], references: [id])
   subscriptionId String
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  senderId   String
+  recipient  User     @relation("Recipient", fields: [recipientId], references: [id])
+  recipientId String
+
+  @@index([senderId, recipientId])
 }
