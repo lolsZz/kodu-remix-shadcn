@@ -11,13 +11,13 @@ type LoaderData = {
   creators: User[];
 };
 
-export const loader: LoaderFunction = async (): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (): Promise<Response> => {
   const creators = await prisma.user.findMany({
     where: { role: 'CREATOR' },
     take: 12, // Limit to 12 creators for now
   });
 
-  return json({ creators });
+  return json<LoaderData>({ creators });
 };
 
 export default function Explore() {

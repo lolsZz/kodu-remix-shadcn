@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const birthDateObj = new Date(birthDate);
   const today = new Date();
-  const age = today.getFullYear() - birthDateObj.getFullYear();
+  let age = today.getFullYear() - birthDateObj.getFullYear();
   const monthDiff = today.getMonth() - birthDateObj.getMonth();
 
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
@@ -44,7 +44,7 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     await prisma.user.update({
       where: { id: userId },
-      data: { isAgeVerified: true },
+      data: { ageVerified: true },
     });
 
     return redirect('/');

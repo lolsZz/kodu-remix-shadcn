@@ -12,7 +12,7 @@ type LoaderData = {
   contents: Content[];
 };
 
-export const loader: LoaderFunction = async ({ request }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({ request }): Promise<Response> => {
   const token = getToken();
   if (!token) {
     throw new Response('認証が必要です', { status: 401 });
@@ -30,11 +30,11 @@ export const loader: LoaderFunction = async ({ request }): Promise<LoaderData> =
   }
 
   const contents = await prisma.content.findMany({
-    where: { isModerated: false },
+    where: { approved: false },
     take: 10, // Limit to 10 unmoderated contents
   });
 
-  return json({ contents });
+  return json<LoaderData>({ contents });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -60,8 +60,7 @@ export const action: ActionFunction = async ({ request }) => {
     await prisma.content.update({
       where: { id: contentId },
       data: {
-        isModerated: true,
-        isApproved: action === 'approve',
+        approved: action === 'approve',
       },
     });
 

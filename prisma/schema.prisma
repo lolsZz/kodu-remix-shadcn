@@ -21,6 +21,7 @@ model User {
   coverImage     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  ageVerified    Boolean  @default(false)
   
   // Relations
   createdContent Content[]
@@ -38,6 +39,7 @@ model Content {
   fileUrl     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  approved    Boolean  @default(false)
   
   // Relations
   creator     User     @relation(fields: [creatorId], references: [id])
