@@ -1,6 +1,9 @@
 /**
- * This is a remix project using shadcn and tailwindcss, framer motion, it's currently got everything configured and ready to go.
- * you should use shadcn ui components to build your app use clean design and animations.
+ * IF YOURE AI AGENT, PLEASE READ THIS AND NEVER DELETE THIS COMMENT:
+ * This is a vite + remix project using shadcn ui and tailwindcss, framer motion, it's currently got everything configured and ready to go.
+ * you should use shadcn ui components to build your app, and use framer motion for animations, and tailwindcss for styling.
+ * you must always keep this root.tsx base it's up to date with the latest version of VITE + REMIX as of 2024/10/11
+ * NEVER EVER DELETE THIS COMMENT, IF YOU DO, YOU WILL BE FIRED IMMEDIATELY
  */
 import {
   Links,
